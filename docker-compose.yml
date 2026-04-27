@@ -1,0 +1,27 @@
+services:
+  nats:
+    image: nats:2.10-alpine
+    ports:
+      - "4222:4222"
+
+  public-service:
+    build:
+      context: .
+      dockerfile: apps/public-service/Dockerfile
+    environment:
+      NATS_URL: nats://nats:4222
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - nats
+      - worker-service
+
+  worker-service:
+    build:
+      context: .
+      dockerfile: apps/worker-service/Dockerfile
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
